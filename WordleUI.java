@@ -19,6 +19,8 @@ public class WordleUI extends JPanel {
     private static String guess = "";
     private static String guessed = "";
     private static String word = "";
+    private static String greenLetters = "";
+    private static String yellowLetters = "";
     private static WordleHelperIO wordleIO;
     private static boolean hasWon = false;
     private static boolean hasLost = false;
@@ -38,6 +40,7 @@ public class WordleUI extends JPanel {
         requestFocusInWindow();
 
         generateWord();
+        System.out.println(word);
     }
 
     public static void generateWord() {
@@ -49,6 +52,9 @@ public class WordleUI extends JPanel {
         g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 22));
 
         guessed = "";
+        greenLetters = "";
+        yellowLetters = "";
+
         if (guesses[guesses.length - 1] != null && guesses[guesses.length - 1].length() > 0 && !hasWon) {
             hasLost = true;
         }
@@ -64,7 +70,11 @@ public class WordleUI extends JPanel {
                 // Remove green letters
                 for (int i = 0; i < guesses[j].length(); i++) {
                     if (guesses[j].charAt(i) == word.charAt(i)) {
+                        greenLetters += "" + word.charAt(i);
                         letters.remove((Character) word.charAt(i));
+                    }
+                    if (word.contains("" + guesses[j].charAt(i))) {
+                        yellowLetters += "" + guesses[j].charAt(i);
                     }
                 }
                 if (letters.size() == 0) {
@@ -89,7 +99,7 @@ public class WordleUI extends JPanel {
                         BOX_SCALE);
 
             }
-            if (guesses[j] != null)
+            if (guesses[j] != null) {
                 for (int k = 0; k < guesses[j].length(); k++) { // Letters in row
                     char[] chars = { guesses[j].charAt(k) };
 
@@ -98,9 +108,10 @@ public class WordleUI extends JPanel {
                             (BOX_SCALE / 2 + 7) +
                                     PADDING + (BOX_SCALE + PADDING) * j);
                 }
+            }
 
             // Draw current guess
-            if (j == numGuesses)
+            if (j == numGuesses) {
                 for (int k = 0; k < guess.length(); k++) { // Letters in row
                     char[] chars = { guess.charAt(k) };
 
@@ -109,6 +120,7 @@ public class WordleUI extends JPanel {
                             (BOX_SCALE / 2 + 7) +
                                     PADDING + (BOX_SCALE + PADDING) * j);
                 }
+            }
         }
 
         // Draw letters available
@@ -123,6 +135,13 @@ public class WordleUI extends JPanel {
                 String letter = keyboard[i][j].toLowerCase();
 
                 g.setColor(Color.GRAY);
+
+                if (greenLetters.toLowerCase().contains(letter.toLowerCase()))
+                    g.setColor(Color.GREEN);
+
+                else if (yellowLetters.toLowerCase().contains(letter.toLowerCase()))
+                    g.setColor(Color.YELLOW);
+
                 g.drawRect(
                         300 + ((maxKeys - keyboard[i].length) * (BOX_SCALE + PADDING)) / 2 + PADDING
                                 + (BOX_SCALE + PADDING) * j,
@@ -130,8 +149,11 @@ public class WordleUI extends JPanel {
                         BOX_SCALE,
                         BOX_SCALE);
 
-                if (!guessed.contains(letter.toLowerCase()))
+                if (!guessed.contains(letter.toLowerCase()) || yellowLetters.contains(letter.toLowerCase())
+                        || greenLetters.contains(letter.toLowerCase()))
                     g.setColor(Color.WHITE);
+                else
+                    g.setColor(Color.GRAY);
 
                 g.drawChars(letter.toCharArray(), 0, 1, (BOX_SCALE / 2 - 8) +
                         300 + ((maxKeys - keyboard[i].length) * (BOX_SCALE + PADDING)) / 2 + PADDING
@@ -141,20 +163,29 @@ public class WordleUI extends JPanel {
             }
         }
 
+        // Make sure message is in white
         g.setColor(Color.WHITE);
-        if (hasWon) {
+
+        if (hasWon) { // Show win message
             g.drawChars(WIN_MESSAGE.toCharArray(), 0, WIN_MESSAGE.length(), (BOX_SCALE / 2 - 8) +
-                    400 + PADDING
+                    430 + PADDING
                     + (BOX_SCALE + PADDING), 200);
-        } else if (hasLost) {
+        } else if (hasLost) { // Show lose message
             String msg = LOSE_MESSAGE + " The word was " + word;
             g.drawChars(msg.toCharArray(), 0, msg.length(),
                     (BOX_SCALE / 2 - 8) +
                             300 + PADDING
                             + (BOX_SCALE + PADDING),
                     200);
-
         }
+
+        String msg = "Press enter to play again";
+        if (hasWon || hasLost)
+            g.drawChars(msg.toCharArray(), 0, msg.length(),
+                    (BOX_SCALE / 2 - 8) +
+                            320 + PADDING
+                            + (BOX_SCALE + PADDING),
+                    250);
     }
 
     /**
