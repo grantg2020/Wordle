@@ -1,5 +1,5 @@
-## To Run in ./Wordle
-# First compile all java classes
+# To Run in ./Wordle
+## First compile all java classes
 javac *.java    
-# Then run the UI
+## Then run the UI
 java WordleUI
